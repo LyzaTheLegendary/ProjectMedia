@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34003.232
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer", "Project-Friend-Media\MediaServer.csproj", "{32CB6B69-AF1D-44D2-828E-8BA9C6270A4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{55C2C8AD-D98D-4A36-9FF1-AEBD9F0B045E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{C06FFE43-CC3B-4909-A0EA-712D8E51B95C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateServer", "UpdateServer\UpdateServer.csproj", "{93D7258F-A3EE-4D16-8E59-0AAC30C24680}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientLauncher", "ClientLauncher\ClientLauncher.csproj", "{0AA4774A-E27D-4602-A520-B24DD1D37E8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceChat", "VoiceChat\VoiceChat.csproj", "{3FFDD463-FE66-421A-BC25-764665D47DC6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32CB6B69-AF1D-44D2-828E-8BA9C6270A4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32CB6B69-AF1D-44D2-828E-8BA9C6270A4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32CB6B69-AF1D-44D2-828E-8BA9C6270A4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32CB6B69-AF1D-44D2-828E-8BA9C6270A4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55C2C8AD-D98D-4A36-9FF1-AEBD9F0B045E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55C2C8AD-D98D-4A36-9FF1-AEBD9F0B045E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55C2C8AD-D98D-4A36-9FF1-AEBD9F0B045E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55C2C8AD-D98D-4A36-9FF1-AEBD9F0B045E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C06FFE43-CC3B-4909-A0EA-712D8E51B95C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C06FFE43-CC3B-4909-A0EA-712D8E51B95C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C06FFE43-CC3B-4909-A0EA-712D8E51B95C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C06FFE43-CC3B-4909-A0EA-712D8E51B95C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93D7258F-A3EE-4D16-8E59-0AAC30C24680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93D7258F-A3EE-4D16-8E59-0AAC30C24680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93D7258F-A3EE-4D16-8E59-0AAC30C24680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93D7258F-A3EE-4D16-8E59-0AAC30C24680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AA4774A-E27D-4602-A520-B24DD1D37E8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AA4774A-E27D-4602-A520-B24DD1D37E8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AA4774A-E27D-4602-A520-B24DD1D37E8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AA4774A-E27D-4602-A520-B24DD1D37E8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FFDD463-FE66-421A-BC25-764665D47DC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FFDD463-FE66-421A-BC25-764665D47DC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FFDD463-FE66-421A-BC25-764665D47DC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FFDD463-FE66-421A-BC25-764665D47DC6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8193DC97-A7CE-469F-A418-58D02CA2E005}
+	EndGlobalSection
+EndGlobal
