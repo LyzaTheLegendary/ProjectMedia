@@ -1,8 +1,9 @@
 ﻿namespace Common.Network.Packets.UpdateServerPackets
 {
-    public enum PacketIds : ushort
+    public enum TS_CS : ushort
     {
         VERSION,
+
         FILE,
     }
 }

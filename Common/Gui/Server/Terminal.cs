@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using Common.Network.Clients;
+using System.Data;
 using Terminal.Gui;
 
 namespace Common.Gui.Server
@@ -12,7 +13,9 @@ namespace Common.Gui.Server
             Task.Run(() => Application.Run());
         }
         private static TerminalLogic GetInstance() => _instance ?? throw new Exception("Initialize instance before calling functions!");
-        public static void WriteNet(string msg) => GetInstance().WriteNet(msg);
+        public static void AddConn(Addr addr) => GetInstance().AddConn(addr);
+        public static void DelConn(Addr addr) => GetInstance().RemoveConn(addr);
+        public static void WriteNet(string msg) => GetInstance().WriteNet(msg + "\n");
     }
     public class TerminalLogic : Window
     {
@@ -23,7 +26,7 @@ namespace Common.Gui.Server
         DataTable _table;
         public TerminalLogic() {
             Application.Init();
-            
+            AddLogs();
             MenuBar menu = new(new MenuBarItem[]
             {
                 new MenuBarItem ("Logging", new MenuItem[]
@@ -34,7 +37,7 @@ namespace Common.Gui.Server
                 })
             });
             Application.Top.Add(this);
-            AddLogs();
+            
             //Add(_networkLog);
             //Add(_localLog);
             //Add(_errorLog);
@@ -47,20 +50,38 @@ namespace Common.Gui.Server
                 //Width = Dim.Fill() - 75,
                 Width = 30,
                 Height = Dim.Fill(),
+                ColorScheme = new ColorScheme()
+                {
+                    Normal = new Terminal.Gui.Attribute(Color.White, Color.Black),
+                    HotNormal = new Terminal.Gui.Attribute(Color.Black, Color.BrightYellow)
+                }
             };
             
             _table = new DataTable();
             _table.Columns.Add("Connected Clients", typeof(string));
-            //_table.Columns.Add("Port", typeof(string));
-            //_table.Rows.Add("test", "test");
+   
             _tableView.Table = _table;
 
             Add(_tableView);
             
         }
-        public void AddConn(string address, ushort port) => _table.Rows.Add($"{address}:{port}");
+        public void AddConn(Addr addr)
+        {
+            _table.Rows.Add(addr.ToString());
+            Application.Refresh();
+        }
+        public void RemoveConn(Addr addr)
+        {
+            _table.AsEnumerable().Where(row => ((string)row.ItemArray[0]) == addr.ToString()).First().Delete();
+            Application.Refresh();
+            //Display.WriteNet("TODO remove :" + addr.ToString());
+            //_table.Rows.Cast<DataRow>().ToList().Where( row => row.ItemArray[0] == addr.ToString()).Last().Delete();
+
+        }
+        public void DelConn(Addr addr) => throw new NotImplementedException("TODO:IMPLEMENT ME");
         public void WriteNet(string msg) {
             _networkLog.Text += msg;
+            Application.Refresh();
         }
         public void WriteLocal(string msg) { }
         public void WriteError(string msg) { }
@@ -68,13 +89,13 @@ namespace Common.Gui.Server
         private void AddLogs()
         {
 
-            ScrollView scrollView = new ScrollView()
-            {
-                X = 0,
-                Y = 1,
-                Width = Dim.Fill(),
-                Height = Dim.Fill()
-            };
+            //ScrollView scrollView = new ScrollView()
+            //{
+            //    X = 0,
+            //    Y = 1,
+            //    Width = Dim.Fill(),
+            //    Height = Dim.Fill()
+            //};
             
             _networkLog = new()
             {
@@ -121,11 +142,14 @@ namespace Common.Gui.Server
                     //HotNormal = new Terminal.Gui.Attribute(Color.Black, Color.BrightYellow)
                 }
             };
-            scrollView.Add(_networkLog);
-            scrollView.Add(_localLog);
-            scrollView.Add(_errorLog);
+            Add(_networkLog);
+            Add(_localLog);
+            Add(_errorLog);
+            //scrollView.Add(_networkLog);
+            //scrollView.Add(_localLog);
+            //scrollView.Add(_errorLog);
 
-            Add(scrollView); // TODO: figure out why it doesn't show up
+            //Add(scrollView); // TODO: figure out why it doesn't show up
         }
         private void EnableLog(TextView view)
         {

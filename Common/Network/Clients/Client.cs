@@ -1,4 +1,6 @@
-﻿using Common.Utilities;
+﻿using Common.Network.Packets;
+using Common.Network.Packets.UpdateServerPackets;
+using Common.Utilities;
 using Network;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -11,11 +13,12 @@ namespace Common.Network.Clients
         private readonly ID _id;
         private readonly CancellationTokenSource _tokenSource;
         private Action<Client>? _onDisconnect;
-        public Client(string host, int port)
+        public Client(string address)
         {
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            _socket.Connect(host, port);
-            _addr = new Addr(host, (ushort)port);
+            _addr = new Addr(address);
+            _socket.Connect(_addr.GetIP(), _addr.GetPort());
+            
             _tokenSource = new CancellationTokenSource();
 
             byte[] intBuff = new byte[sizeof(int)];
@@ -28,10 +31,10 @@ namespace Common.Network.Clients
             _socket = socket;
             _id = id;
             _tokenSource = new CancellationTokenSource();
-            string[] hostInfo = socket.RemoteEndPoint!.ToString()!.Split(':'); // wont be empty as it's used remotely
-            _addr = new Addr(hostInfo[0], ushort.Parse(hostInfo[1]));
+            _addr = new Addr(socket.RemoteEndPoint!.ToString()!);
 
-            Send(id);
+            if (_socket.Connected)
+                _socket.Send(BitConverter.GetBytes(id.GetNumber()));
         }
         public void Receive(Action<IClient, Header, byte[]> onReceive)
         {
@@ -40,12 +43,30 @@ namespace Common.Network.Clients
                 while (_socket.Connected)
                 {
                     byte[] buff = new byte[Marshal.SizeOf<Header>()];
-                    _socket.Receive(buff);
+                    try
+                    {
+                        int receivedBytes = _socket.Receive(buff);
+                        if (receivedBytes == 0)
+                        {
+                            _onDisconnect?.Invoke(this);
+                            return;
+                        }
+                    }
+                    catch (Exception ex) { _onDisconnect?.Invoke(this); return; }
 
                     Header header = buff.Cast<Header>();
                     
                     buff = new byte[header.GetSize()];
-                    _socket.Receive(buff);
+                    try
+                    {
+                        int receivedBytes2 = _socket.Receive(buff);
+                        if (receivedBytes2 == 0)
+                        {
+                            _onDisconnect?.Invoke(this);
+                            return;
+                        }
+                    }
+                    catch (Exception ex) { _onDisconnect?.Invoke(this); return; }
 
                     Task.Run(() => onReceive(this, header, buff), _tokenSource.Token);
                 }
@@ -62,6 +83,7 @@ namespace Common.Network.Clients
             _socket.Shutdown(SocketShutdown.Both);
             _socket.Close();
         }
+        public Stream GetStream() => new NetworkStream(_socket);
         public Addr GetAddr()
             => _addr;
         public ID GetId()
@@ -73,10 +95,22 @@ namespace Common.Network.Clients
             if(_socket.Connected)
                 _socket.Send(buff);
         }
-        public void Send<T>(T structure)
+        public void Send<T>(TS_SC id,T structure)
         {
-            if(_socket.Connected)
-                _socket.Send(MarshalUtil.StructToBytes(structure));
+            byte[] buff = MarshalUtil.StructToBytes(structure);
+            List<byte> packet = new(MarshalUtil.StructToBytes(new Header((ushort)id,(uint)buff.Length)));
+            packet.AddRange(buff);
+
+            if (_socket.Connected)
+                _socket.Send(buff.ToArray());
+        }
+        public void Send(TS_SC id, byte[] buff)
+        {
+            List<byte> packet = new(MarshalUtil.StructToBytes(new Header((ushort)id, (uint)buff.Length)));
+            packet.AddRange(buff);
+
+            if (_socket.Connected)
+                _socket.Send(buff.ToArray());
         }
     }
 }

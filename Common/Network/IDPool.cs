@@ -1,20 +1,27 @@
-﻿namespace Common.Network
+﻿using System.Collections.Concurrent;
+
+namespace Common.Network
 {
     public class IDPool
     {
-        private int _highestNumber = 1;
-        private readonly Queue<int> _availableNumbers = new();
-        public void ReturnNumber(int id)
+        private readonly ConcurrentQueue<int> availableIds = new ConcurrentQueue<int>();
+        private int highestId = 1;
+        private readonly object lockObject = new();
+
+        public ID GetNewID()
         {
-            _availableNumbers.Enqueue(id);
+            if (!availableIds.TryDequeue(out int id))
+            {
+                lock (lockObject)
+                {
+                    id = highestId++;
+                }
+            }
+            return new ID(id, ReturnToQueue);
         }
-        public ID CreateID()
-        {
-            if (_availableNumbers.Count == 0)
-                return new ID(_highestNumber++, ReturnNumber);
-                
-            return new ID(_availableNumbers.Dequeue(), ReturnNumber);
-        }
+
+        private void ReturnToQueue(int id)
+            => availableIds.Enqueue(id);
     }
     public class ID
     {
@@ -25,6 +32,7 @@
             _returnNumber = returnNumber; 
             Id = id; 
         }
+        public int GetNumber() => Id;
         ~ID()
         {
             if(_returnNumber == null) return;
