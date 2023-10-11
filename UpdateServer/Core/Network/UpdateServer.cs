@@ -46,7 +46,7 @@ namespace UpdateServer.Core.Network
                     ulong localVer = storage.GetLatestUpdateVer();
                     if(remoteVer == localVer)
                     {
-                        client.Send(TS_SC.UPDATE_INFO,new MSG_UPDATE_STATUS(true,0));
+                        client.Send((ushort)TS_SC.UPDATE_INFO,new MSG_UPDATE_STATUS(true,0));
                         return;
                     }
 
@@ -58,9 +58,9 @@ namespace UpdateServer.Core.Network
                     pool.EnqueueTask(() =>
                     {
                         foreach (mFile file in files)
-                            client.Send(TS_SC.UPDATE_FILE, (byte[])file);
+                            client.Send((ushort)TS_SC.UPDATE_FILE, (byte[])file);
 
-                        client.Send(TS_SC.UPDATE_FINISHED, new MSG_UPDATE_FINISHED(new Addr("127.0.0.1:25566")));
+                        client.Send((ushort)TS_SC.UPDATE_FINISHED, new MSG_UPDATE_FINISHED(new Addr("127.0.0.1:25566")));
                     });
 
                     break;

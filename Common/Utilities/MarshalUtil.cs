@@ -2,34 +2,43 @@
 
 namespace Common.Utilities
 {
-    public static class MarshalUtil
+    public static class MarshalUtil // TODO this breaks somewhere?
     {
         public static byte[] StructToBytes<T>(T structure)
         {
-            int size = Marshal.SizeOf(structure);
-            nint ptr = Marshal.AllocCoTaskMem(size);
+            int structSize = Marshal.SizeOf(structure);
+            byte[] bytes = new byte[structSize];
 
-            byte[] buff = new byte[size];
-            Marshal.Copy(ptr, buff, 0, size);
-            Marshal.FreeCoTaskMem(ptr);
+            IntPtr ptr = Marshal.AllocHGlobal(structSize);
+            try
+            {
+                Marshal.StructureToPtr(structure!, ptr, false);
+                Marshal.Copy(ptr, bytes, 0, structSize);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
 
-            return buff;
+            return bytes;
         }
 
         public static T BytesToStruct<T>(byte[] buff)
         {
-            int size = Marshal.SizeOf<T>();
+            int size = Marshal.SizeOf(typeof(T));
+            if (buff.Length < size)
+                throw new Exception("Invalid parameter");
 
-            if (buff.Length != size)
-                throw new ArgumentException("Buffer provided is not the same size as the unmanaged size of struct given!");
-
-            nint ptr = Marshal.AllocCoTaskMem(size);
-            Marshal.Copy(buff,0, ptr, size);
-
-            T? structure = Marshal.PtrToStructure<T>(ptr) ?? throw new Exception("Failed to turn buff from ptr into structure!");
-            Marshal.FreeCoTaskMem(ptr);
-
-            return structure;
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+            try
+            {
+                Marshal.Copy(buff, 0, ptr, size);
+                return (T)Marshal.PtrToStructure(ptr, typeof(T))!;
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
         }
     }
 }

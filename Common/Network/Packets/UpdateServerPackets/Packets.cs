@@ -10,6 +10,7 @@ namespace Common.Network.Packets.UpdateServerPackets
     {
         [MarshalAs(UnmanagedType.U8)]
         public readonly ulong ver;
+        public MSG_VERSION(ulong ver) => this.ver = ver; 
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

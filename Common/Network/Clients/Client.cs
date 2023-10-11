@@ -34,7 +34,7 @@ namespace Common.Network.Clients
             _addr = new Addr(socket.RemoteEndPoint!.ToString()!);
 
             if (_socket.Connected)
-                _socket.Send(BitConverter.GetBytes(id.GetNumber()));
+                _socket.Send(MarshalUtil.StructToBytes(id.GetNumber()));
         }
         public void Receive(Action<IClient, Header, byte[]> onReceive)
         {
@@ -95,22 +95,21 @@ namespace Common.Network.Clients
             if(_socket.Connected)
                 _socket.Send(buff);
         }
-        public void Send<T>(TS_SC id,T structure)
+        // rework the id system!     
+        public void Send<T>(ushort id,T structure)
         {
             byte[] buff = MarshalUtil.StructToBytes(structure);
-            List<byte> packet = new(MarshalUtil.StructToBytes(new Header((ushort)id,(uint)buff.Length)));
+            Header header = new Header(id, (uint)buff.Length);
+            List<byte> packet = new(MarshalUtil.StructToBytes(buff.Length));
             packet.AddRange(buff);
 
             if (_socket.Connected)
-                _socket.Send(buff.ToArray());
+                _socket.Send(packet.ToArray());
         }
-        public void Send(TS_SC id, byte[] buff)
-        {
-            List<byte> packet = new(MarshalUtil.StructToBytes(new Header((ushort)id, (uint)buff.Length)));
-            packet.AddRange(buff);
 
-            if (_socket.Connected)
-                _socket.Send(buff.ToArray());
+        public void Send(ushort id, byte[] buff)
+        {
+            throw new NotImplementedException();
         }
     }
 }

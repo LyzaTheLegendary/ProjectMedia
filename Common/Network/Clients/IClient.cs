@@ -6,8 +6,8 @@ namespace Common.Network.Clients
     public interface IClient
     {
         void Send(byte[] buff);
-        void Send<T>(TS_SC id, T structure);
-        void Send(TS_SC id, byte[] buff);
+        void Send<T>(ushort id, T structure);
+        void Send(ushort id, byte[] buff);
         void Disconnect();
         bool Connected();
         Stream GetStream();

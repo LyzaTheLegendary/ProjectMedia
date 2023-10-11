@@ -8,12 +8,13 @@ namespace Network
         [MarshalAs(UnmanagedType.U2)]
         private readonly ushort _id;
         [MarshalAs(UnmanagedType.U4)]
-        private readonly uint size;
+        private readonly uint _size;
         public Header(ushort id, uint size)
         {
-
+            _id = id;
+            _size = size;
         }
-        public uint GetSize() => size;
+        public uint GetSize() => _size;
         public ushort GetId() => _id;
     }
 }
