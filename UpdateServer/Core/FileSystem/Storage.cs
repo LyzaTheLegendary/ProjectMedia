@@ -12,21 +12,26 @@ namespace UpdateServer.Core.FileSystem
                 Directory.CreateDirectory(Path.Combine(_rootPath, "Updates"));
 
         }
-        public ulong GetLatestUpdateVer()
+        public int GetLatestUpdateVer()
         {
-            List<string> directories = Directory.GetFiles(Path.Combine(_rootPath, "Updates")).OrderBy(x => x.Split().Last()).ToList();
+            string path = Path.Combine(_rootPath, "Updates");
+            List<string> directories = Directory.GetDirectories(path).OrderBy(x => x.Split().Last()).ToList();
             if (directories.Count == 0)
                 return 0;
 
-            return ulong.Parse(directories[0]);
+            return directories.Count;
         }
-        public mFile[] GetUpdate(ulong updateNumber)
+        public mFile[]? GetUpdate(int updateNumber)
         {
-            string[] paths = Directory.GetFiles(Path.Combine(_rootPath,"Updates",updateNumber.ToString()));
+            string path = Path.Combine(_rootPath, "Updates", updateNumber.ToString());
+            if (!Directory.Exists(path))
+                return null;
+
+            string[] paths = Directory.GetFiles(path);
             List<mFile> files = new(paths.Length);
 
-            foreach(string path in paths)
-                files.Add(new mFile(path));
+            foreach(string _path in paths)
+                files.Add(new mFile(_path));
 
             return files.ToArray();
         }

@@ -1,7 +1,7 @@
-﻿using Common.Network.Packets;
-using Common.Network.Packets.UpdateServerPackets;
+﻿using Common.Threading;
 using Common.Utilities;
 using Network;
+using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 namespace Common.Network.Clients
@@ -11,34 +11,45 @@ namespace Common.Network.Clients
         private readonly Socket _socket;
         private readonly Addr _addr;
         private readonly ID _id;
-        private readonly CancellationTokenSource _tokenSource;
+        //private readonly CancellationTokenSource _tokenSource; // we move this to the TaskPool instead!
+        private readonly TaskPool _pool = new(4);
+        private readonly BlockingCollection<byte[]> _dataPool = new();
         private Action<Client>? _onDisconnect;
         public Client(string address)
         {
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             _addr = new Addr(address);
             _socket.Connect(_addr.GetIP(), _addr.GetPort());
-            
-            _tokenSource = new CancellationTokenSource();
+            _pool.EnqueueTask(StartQueue);
+            //_tokenSource = new CancellationTokenSource();
 
             byte[] intBuff = new byte[sizeof(int)];
 
             _socket.Receive(intBuff);
             _id = new ID(MarshalUtil.BytesToStruct<int>(intBuff));
+            
         }
         public Client(Socket socket, ID id)
         {
             _socket = socket;
             _id = id;
-            _tokenSource = new CancellationTokenSource();
+            //_tokenSource = new CancellationTokenSource();
             _addr = new Addr(socket.RemoteEndPoint!.ToString()!);
-
+            _pool.EnqueueTask(StartQueue);
             if (_socket.Connected)
                 _socket.Send(MarshalUtil.StructToBytes(id.GetNumber()));
         }
+        private void StartQueue()
+        {
+            foreach (byte[] buff in _dataPool.GetConsumingEnumerable()) // rapes memory?
+            {
+                if(_socket.Connected)
+                    _socket.Send(buff);
+            }
+        }
         public void Receive(Action<IClient, Header, byte[]> onReceive)
         {
-            Task.Factory.StartNew(() =>
+            _pool.EnqueueTask(() =>
             {
                 while (_socket.Connected)
                 {
@@ -55,7 +66,7 @@ namespace Common.Network.Clients
                     catch (Exception ex) { _onDisconnect?.Invoke(this); return; }
 
                     Header header = buff.Cast<Header>();
-                    
+
                     buff = new byte[header.GetSize()];
                     try
                     {
@@ -68,9 +79,9 @@ namespace Common.Network.Clients
                     }
                     catch (Exception ex) { _onDisconnect?.Invoke(this); return; }
 
-                    Task.Run(() => onReceive(this, header, buff), _tokenSource.Token);
+                    _pool.EnqueueTask(() => onReceive(this, header, buff));
                 }
-            }, _tokenSource.Token);
+            });
         }
         public bool Connected()
             => _socket.Connected;
@@ -79,7 +90,7 @@ namespace Common.Network.Clients
             if (_onDisconnect != null)
                 _onDisconnect(this);
 
-            _tokenSource.Cancel();
+            _pool.Stop();
             _socket.Shutdown(SocketShutdown.Both);
             _socket.Close();
         }
@@ -90,26 +101,28 @@ namespace Common.Network.Clients
             => _id;
         public void AddOnDisconnect(Action<Client> onDisconnect) 
             => _onDisconnect = onDisconnect;
-        public void Send(byte[] buff)
-        {
-            if(_socket.Connected)
-                _socket.Send(buff);
-        }
+        public void PendMessage(byte[] buff) 
+            => _dataPool.Add(buff);
+        
         // rework the id system!     
-        public void Send<T>(ushort id,T structure)
+        public void PendMessage<T>(ushort id,T structure)
         {
             byte[] buff = MarshalUtil.StructToBytes(structure);
-            Header header = new Header(id, (uint)buff.Length);
-            List<byte> packet = new(MarshalUtil.StructToBytes(buff.Length));
+            List<byte> packet = new(MarshalUtil.StructToBytes(new Header(id, buff.Length)));
             packet.AddRange(buff);
 
-            if (_socket.Connected)
-                _socket.Send(packet.ToArray());
+            _dataPool.Add(packet.ToArray());
         }
 
-        public void Send(ushort id, byte[] buff)
+        public void PendMessage(ushort id, byte[] buff)
         {
-            throw new NotImplementedException();
+            byte[] header = MarshalUtil.StructToBytes(new Header(id, buff.Length));
+            List<byte> packet = new(buff.Length + Marshal.SizeOf<Header>());
+
+            packet.AddRange(header);
+            packet.AddRange(buff);
+
+            _dataPool.Add(packet.ToArray());
         }
     }
 }

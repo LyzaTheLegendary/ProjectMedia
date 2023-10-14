@@ -5,9 +5,9 @@ namespace Common.Network.Clients
 {
     public interface IClient
     {
-        void Send(byte[] buff);
-        void Send<T>(ushort id, T structure);
-        void Send(ushort id, byte[] buff);
+        void PendMessage(byte[] buff);
+        void PendMessage<T>(ushort id, T structure);
+        void PendMessage(ushort id, byte[] buff);
         void Disconnect();
         bool Connected();
         Stream GetStream();

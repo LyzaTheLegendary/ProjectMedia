@@ -19,6 +19,7 @@ namespace UpdateServer.Core.Network
         public UpServer(Addr addr)
         {
             storage = new Storage("FileSystem");
+            var test = storage.GetLatestUpdateVer();
             pool = new(10);
             listener = new TcpListener(addr,10);
             listener.Listen(OnConnect);
@@ -42,25 +43,36 @@ namespace UpdateServer.Core.Network
             {
                 case TS_CS.VERSION:
                     // Version check?
-                    ulong remoteVer = buff.Cast<MSG_VERSION>().ver;
-                    ulong localVer = storage.GetLatestUpdateVer();
-                    if(remoteVer == localVer)
+                    int remoteVer = buff.Cast<MSG_VERSION>().ver;
+                    int localVer = storage.GetLatestUpdateVer();
+                    if (remoteVer == localVer)
                     {
-                        client.Send((ushort)TS_SC.UPDATE_INFO,new MSG_UPDATE_STATUS(true,0));
+                        client.PendMessage((ushort)TS_SC.UPDATE_INFO, new MSG_UPDATE_STATUS(true, 0,localVer));
                         return;
                     }
 
                     List<mFile> files = new();
+                    
 
-                    while(remoteVer > localVer)
-                        files.AddRange(storage.GetUpdate(remoteVer++));
+                    while(remoteVer < (localVer + 1)) { 
+                        mFile[]? tempFiles = storage.GetUpdate(remoteVer);
+                        if(tempFiles != null)
+                            files.AddRange(tempFiles);
+                        remoteVer++;
+                    }
+
+                    client.PendMessage((ushort)TS_SC.UPDATE_INFO, new MSG_UPDATE_STATUS(false, files.Count, localVer - 1));
 
                     pool.EnqueueTask(() =>
                     {
-                        foreach (mFile file in files)
-                            client.Send((ushort)TS_SC.UPDATE_FILE, (byte[])file);
+                        foreach (mFile file in files) { 
+                            client.PendMessage((ushort)TS_SC.UPDATE_FILE, (byte[])file);
+                            Display.WriteNet($"Sent file: {file.GetFileName()} to: {client.GetAddr()}");
+                            }
+                        client.PendMessage((ushort)TS_SC.UPDATE_FINISHED, new MSG_UPDATE_FINISHED(new Addr("127.0.0.1:25566")));
+                        Display.WriteNet($"Updated client from ver: {remoteVer - files.Count} to ver: {localVer - 1}");
 
-                        client.Send((ushort)TS_SC.UPDATE_FINISHED, new MSG_UPDATE_FINISHED(new Addr("127.0.0.1:25566")));
+                        //client.Disconnect();
                     });
 
                     break;

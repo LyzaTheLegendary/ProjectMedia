@@ -25,15 +25,30 @@ namespace Common.FileSystem
         public string? GetPath() => _path;
         public string GetFileType() => _fileType;
         public byte[] GetData() => _data;
-
+        public int GetDataSize() => _data.Length;
         public static explicit operator byte[] (mFile file)
         {
-            List<byte> bytes = new List<byte>();
-            bytes.AddRange(BitConverter.GetBytes(file.GetFileName().Length));
-            bytes.AddRange(Encoding.UTF8.GetBytes(file.GetFileName()));
-            bytes.AddRange(BitConverter.GetBytes(file._data.Length));
-            bytes.AddRange(file._data);
-            return bytes.ToArray();
+            byte[] buff = new byte[file._data.Length + (file._fileName.Length + file._fileType.Length) * 2];
+            using (MemoryStream ms = new(buff))
+            using (BinaryWriter bw = new BinaryWriter(ms))
+            {
+                bw.Write(file._fileName);
+                bw.Write(buff.Length);
+                bw.Write(file._data);
+            }
+
+            
+            return buff;
+        }
+        public static implicit operator mFile (byte[] buff) {
+            using (MemoryStream ms = new(buff))
+            using (BinaryReader br = new BinaryReader(ms))
+            {
+                string fileName = br.ReadString();
+                int dataSize = br.ReadInt32();
+                byte[] data = br.ReadBytes(dataSize);
+                return new mFile(fileName, data);
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ public sealed class Program
     private static Process process;
     private static void Main()
     {
+        
         process = Process.GetCurrentProcess();
         Display.ConstructInstance();
         Thread.Sleep(1000);
