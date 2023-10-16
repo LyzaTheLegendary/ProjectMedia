@@ -1,44 +1,45 @@
-﻿using Common.FileSystem;
+﻿using ClientLauncher;
+using Common.FileSystem;
+using Common.FileSystem.Storage;
 using Common.Network.Clients;
-using Common.Network.Packets.UpdateServerPackets;
-using Common.Utilities;
-using Network;
 using System.Diagnostics;
 
 public sealed class Program
 {
+    private static Updater updater;
     private static Process process = Process.GetCurrentProcess();
-    private static List<mFile> files = new();
-    public static int FilesLeft = 0;
     private static void Main()
     {
-        Client client = new("127.0.0.1:25565");
-        client.Receive(OnMessage);
-        Thread.Sleep(1000);
-        client.PendMessage((ushort)TS_CS.VERSION, new MSG_VERSION(0));
+        updater = new Updater("127.0.0.1:25565") // will rewrite for now as it directly just dumps what it gets, not a fan of it!
+        {
+            onCompleted = OnComplete,
+            onFailure = OnFailure,
+            onNewFile = OnNewFile,
+        };
+
         process.WaitForExit();
 
     }
-    public static void OnMessage(IClient client, Header header, byte[] buff)
+    public static void OnNewFile(mFile file)
     {
-        switch((TS_SC)header.GetId()) {
-            case TS_SC.UPDATE_FILE:
-                mFile file = (mFile)buff;
-                files.Add(file);
-                Console.WriteLine($"Downloaded: {file.GetFileName()} size: {file.GetDataSize()}");
-                //files.Add(new FileReader(buff).ReadFile());
-                break;
-            case TS_SC.UPDATE_FINISHED:
-                Addr serverAddr = (Addr)buff.Cast<MSG_UPDATE_FINISHED>(); // doesn't work well as it isn't in order, We should make a send queue
-                client.Disconnect();
-                Console.WriteLine("Done updating!");
-                break;
-            case TS_SC.UPDATE_INFO:
-                MSG_UPDATE_STATUS status = buff.Cast<MSG_UPDATE_STATUS>();
-                FilesLeft = status.files;
-                Console.WriteLine($"Server at version:{status.remoteVer} files to download: {FilesLeft}");
-                break;
-        }
+        Console.WriteLine($"File {updater.filesLeft++}/{updater.totalFiles}: {file.GetFileName()}");
+        Storage.SaveFile(file);
+    }
+    public static void OnComplete(Addr serverAddr)
+    {
+        Console.WriteLine("Completed!");
+        Thread.Sleep(1000); // making sure all files have time to save
+
+        ProcessStartInfo startInfo = new ProcessStartInfo();
+        startInfo.FileName = "Client.exe";
+        startInfo.Arguments = serverAddr.ToString();
+        //Process.Start(startInfo);
+
+        Environment.Exit(0);
+    }
+    public static void OnFailure() 
+    {
+        Console.WriteLine("Failed to update");
     }
     public static void Exit()
     {

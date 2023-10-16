@@ -43,8 +43,14 @@ namespace Common.Network.Clients
         {
             foreach (byte[] buff in _dataPool.GetConsumingEnumerable()) // rapes memory?
             {
-                if(_socket.Connected)
-                    _socket.Send(buff);
+                try
+                {
+                    if (_socket.Connected)
+                        _socket.Send(buff);
+                }catch(Exception)
+                {
+                    Disconnect();
+                }
             }
         }
         public void Receive(Action<IClient, Header, byte[]> onReceive)
@@ -65,11 +71,12 @@ namespace Common.Network.Clients
                     }
                     catch (Exception ex) { _onDisconnect?.Invoke(this); return; }
 
-                    Header header = buff.Cast<Header>();
-
+                    Header header = buff.Cast<Header>(); // sometimes packet doesn't arrive completely?
                     buff = new byte[header.GetSize()];
+
                     try
                     {
+
                         int receivedBytes2 = _socket.Receive(buff);
                         if (receivedBytes2 == 0)
                         {
@@ -91,8 +98,12 @@ namespace Common.Network.Clients
                 _onDisconnect(this);
 
             _pool.Stop();
-            _socket.Shutdown(SocketShutdown.Both);
-            _socket.Close();
+            try
+            {
+                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Close();
+            }
+            catch(Exception) { }
         }
         public Stream GetStream() => new NetworkStream(_socket);
         public Addr GetAddr()

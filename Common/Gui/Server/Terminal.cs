@@ -37,10 +37,6 @@ namespace Common.Gui.Server
                 })
             });
             Application.Top.Add(this);
-            
-            //Add(_networkLog);
-            //Add(_localLog);
-            //Add(_errorLog);
             Add(menu);
 
             _tableView = new()
@@ -67,21 +63,31 @@ namespace Common.Gui.Server
         }
         public void AddConn(Addr addr)
         {
-            _table.Rows.Add(addr.ToString());
-            Application.Refresh();
+            lock (_table)
+            {
+                _table.Rows.Add(addr.ToString());
+                //Application.Refresh();
+            }
         }
         public void RemoveConn(Addr addr)
         {
-            _table.AsEnumerable().Where(row => ((string)row.ItemArray[0]) == addr.ToString()).First().Delete();
-            Application.Refresh();
-            //Display.WriteNet("TODO remove :" + addr.ToString());
-            //_table.Rows.Cast<DataRow>().ToList().Where( row => row.ItemArray[0] == addr.ToString()).Last().Delete();
+            lock (_table)
+            {
+
+                if (_table.AsEnumerable().Count() == 0)
+                    return;
+                _table.AsEnumerable().Where(row => ((string)row.ItemArray[0]) == addr.ToString()).First().Delete(); // very unstable
+
+            }
 
         }
         public void DelConn(Addr addr) => throw new NotImplementedException("TODO:IMPLEMENT ME");
         public void WriteNet(string msg) {
-            _networkLog.Text += msg;
-            Application.Refresh();
+            lock (_networkLog)
+            {
+                _networkLog.Text += msg;
+                //Application.Refresh();
+            }
         }
         public void WriteLocal(string msg) { }
         public void WriteError(string msg) { }

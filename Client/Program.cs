@@ -1,2 +1,9 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Common.Network.Clients;
+
+internal sealed class Program
+{
+    public static void Main(string[] args)
+    {
+        Addr serverAddr = new(args[0]);
+    }
+}

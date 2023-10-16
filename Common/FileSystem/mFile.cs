@@ -26,6 +26,7 @@ namespace Common.FileSystem
         public string GetFileType() => _fileType;
         public byte[] GetData() => _data;
         public int GetDataSize() => _data.Length;
+
         public static explicit operator byte[] (mFile file)
         {
             byte[] buff = new byte[file._data.Length + (file._fileName.Length + file._fileType.Length) * 2];

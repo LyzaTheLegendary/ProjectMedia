@@ -45,16 +45,16 @@ namespace UpdateServer.Core.Network
                     // Version check?
                     int remoteVer = buff.Cast<MSG_VERSION>().ver;
                     int localVer = storage.GetLatestUpdateVer();
-                    if (remoteVer == localVer)
+                    if (remoteVer >= localVer)
                     {
-                        client.PendMessage((ushort)TS_SC.UPDATE_INFO, new MSG_UPDATE_STATUS(true, 0,localVer));
+                        client.PendMessage((ushort)TS_SC.UPDATE_FINISHED, new MSG_UPDATE_FINISHED(new Addr("127.0.0.1:25566")));
                         return;
                     }
 
-                    List<mFile> files = new();
+                    List<mFile> files = new(100);
                     
 
-                    while(remoteVer < (localVer + 1)) { 
+                    while(remoteVer < (localVer - 1)) { 
                         mFile[]? tempFiles = storage.GetUpdate(remoteVer);
                         if(tempFiles != null)
                             files.AddRange(tempFiles);
@@ -65,14 +65,20 @@ namespace UpdateServer.Core.Network
 
                     pool.EnqueueTask(() =>
                     {
-                        foreach (mFile file in files) { 
+                        foreach (mFile file in files) {
+                            //Thread.Sleep(20);
                             client.PendMessage((ushort)TS_SC.UPDATE_FILE, (byte[])file);
                             Display.WriteNet($"Sent file: {file.GetFileName()} to: {client.GetAddr()}");
                             }
+                        files.Clear();
+
+                        //Thread.Sleep(200);
                         client.PendMessage((ushort)TS_SC.UPDATE_FINISHED, new MSG_UPDATE_FINISHED(new Addr("127.0.0.1:25566")));
                         Display.WriteNet($"Updated client from ver: {remoteVer - files.Count} to ver: {localVer - 1}");
 
-                        //client.Disconnect();
+                        //GC.Collect();
+                        
+                        client.Disconnect();
                     });
 
                     break;
