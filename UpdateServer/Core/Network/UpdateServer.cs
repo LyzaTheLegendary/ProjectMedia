@@ -19,7 +19,7 @@ namespace UpdateServer.Core.Network
         public UpServer(Addr addr)
         {
             storage = new Storage("FileSystem");
-            var test = storage.GetLatestUpdateVer();
+           
             pool = new(10);
             listener = new TcpListener(addr,10);
             listener.Listen(OnConnect);

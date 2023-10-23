@@ -33,7 +33,7 @@ namespace Common.Network.Clients
         {
             _socket = socket;
             _id = id;
-            //_tokenSource = new CancellationTokenSource();
+
             _addr = new Addr(socket.RemoteEndPoint!.ToString()!);
             _pool.EnqueueTask(StartQueue);
             if (_socket.Connected)
@@ -41,7 +41,7 @@ namespace Common.Network.Clients
         }
         private void StartQueue()
         {
-            foreach (byte[] buff in _dataPool.GetConsumingEnumerable()) // rapes memory?
+            foreach (byte[] buff in _dataPool.GetConsumingEnumerable())
             {
                 try
                 {

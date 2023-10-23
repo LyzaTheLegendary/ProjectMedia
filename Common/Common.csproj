@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -8,10 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MySqlConnector" Version="2.2.7" />
     <PackageReference Include="Terminal.Gui" Version="1.14.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Network\Packets\MediaServerPackets\" />
     <Folder Include="Streams\" />
   </ItemGroup>
 

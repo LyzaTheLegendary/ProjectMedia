@@ -25,6 +25,7 @@ namespace Common.FileSystem
         public string? GetPath() => _path;
         public string GetFileType() => _fileType;
         public byte[] GetData() => _data;
+        public string GetText() => Encoding.UTF8.GetString(_data);
         public int GetDataSize() => _data.Length;
 
         public static explicit operator byte[] (mFile file)

@@ -14,5 +14,8 @@ namespace Common.FileSystem.Storage
             using (FileStream fs = File.Create(Path.Combine(root, file.GetFileName())))
                 fs.Write(file.GetData());
         }
+        public static mFile GetFile(string filename) 
+            => new mFile(filename, File.ReadAllBytes(Path.Combine(root, filename)));
+        
     }
 }
