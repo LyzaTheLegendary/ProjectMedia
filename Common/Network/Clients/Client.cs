@@ -69,7 +69,7 @@ namespace Common.Network.Clients
                             return;
                         }
                     }
-                    catch (Exception ex) { _onDisconnect?.Invoke(this); return; }
+                    catch (Exception) { _onDisconnect?.Invoke(this); return; }
 
                     Header header = buff.Cast<Header>(); // sometimes packet doesn't arrive completely?
                     buff = new byte[header.GetSize()];

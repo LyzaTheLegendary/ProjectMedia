@@ -15,17 +15,31 @@
             fromText = value;
             return this;
         }
-        public Query Where(string value)
+        public Query Where(string field, string value)
         {
-            whereText = value;
+            if (whereText != string.Empty)
+                whereText += $"AND {field} = '{value}' ";
+            else
+                whereText +=  $"WHERE {field} = '{value}' ";
             return this;
         }
-        public override string ToString()
+        public Query Update()
         {
-            string queryStr = $"SELECT {selectText} FROM {fromText}";
+            throw new NotImplementedException();
+        }
+        public Query Delete()
+        {
+            throw new NotImplementedException();
+        }
+        public override string ToString() // TODO implement update and delete
+        {
+            string queryStr = "";
+
+            if(selectText != string.Empty)
+                queryStr += $"SELECT {selectText} FROM {fromText} ";
 
             if (whereText != string.Empty)
-                queryStr += $" WHERE {whereText}";
+                queryStr += $"{whereText}";
             return queryStr;
         }
         public static implicit operator string(Query query) => query.ToString();

@@ -8,7 +8,7 @@
             string fileStr = File.ReadAllText(filename);
             foreach(string line in fileStr.Split("\r\n"))
             {
-                if (line.StartsWith("//") || line.StartsWith("\r\n"))
+                if (line.StartsWith("//") || line.StartsWith("'\r\n") || line == string.Empty)
                     continue;
 
                 string[] lineParams = line.Split('=');

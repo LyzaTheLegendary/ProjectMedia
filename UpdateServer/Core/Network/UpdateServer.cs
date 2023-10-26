@@ -1,5 +1,4 @@
 ﻿using Common.FileSystem;
-using Common.Gui.Server;
 using Common.Network;
 using Common.Network.Clients;
 using Common.Network.Packets.UpdateServerPackets;
@@ -29,13 +28,11 @@ namespace UpdateServer.Core.Network
             lock (clientList) { clientList.Add(client); }
             client.AddOnDisconnect(OnDisconnect);
             client.Receive(OnMessage);
-            Display.AddConn(client.GetAddr());
 
         }
         public void OnDisconnect(Client client)
         {
             lock (clientList) { clientList.Remove(client); }
-            Display.DelConn(client.GetAddr());
         }
         public void OnMessage(IClient client, Header header, byte[] buff) { // should turn with byte[] into Memory
             // imemory that block buffer copies on a cast
@@ -68,13 +65,11 @@ namespace UpdateServer.Core.Network
                         foreach (mFile file in files) {
                             //Thread.Sleep(20);
                             client.PendMessage((ushort)TS_SC.UPDATE_FILE, (byte[])file);
-                            Display.WriteNet($"Sent file: {file.GetFileName()} to: {client.GetAddr()}");
                             }
                         files.Clear();
 
                         //Thread.Sleep(200);
                         client.PendMessage((ushort)TS_SC.UPDATE_FINISHED, new MSG_UPDATE_FINISHED(new Addr("127.0.0.1:25566")));
-                        Display.WriteNet($"Updated client from ver: {remoteVer - files.Count} to ver: {localVer - 1}");
 
                         //GC.Collect();
                         
