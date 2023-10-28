@@ -3,19 +3,20 @@ using Common.Network.Clients;
 using Common.Network.Packets.MediaServerPackets;
 using Common.Threading;
 using Network;
+using Project_Friend_Media.Core.Users;
 
 namespace Project_Friend_Media.Core
 {
     public sealed class Server
     {
         private readonly List<IClient> _clients = new(100);
+        private readonly TaskPool _taskPool = new(10);
         private readonly TcpListener _listener;
-        private readonly TaskPool _taskPool;
         private readonly Routing _routing;
-        public Server(Addr host)
+        public Server(Addr host, Routing routing)
         {
+            _routing = routing;
             _listener = new TcpListener(host, 10);
-            _taskPool = new TaskPool(10);
             _listener.Listen(OnConnect);
         }
         public void OnConnect(Client client)
@@ -27,19 +28,12 @@ namespace Project_Friend_Media.Core
         }
         public void OnDisconnect(Client client)
         {
+            UserManager.RemoveUser(client.GetId());
             lock (_clients)
                 _clients.Remove(client);
         }
-        public void OnMessage(IClient client, Header header, byte[] data)
-        {
-            //_routes[header.GetId()]?.invoke(client, header, data);
-            // vs 
-            switch ((PacketIds)header.GetId())
-            {
-                case PacketIds.LOGIN:
-                    
-                    break;
-            }
-        }
+        public void OnMessage(IClient client, Header header, byte[] data) 
+            => _taskPool.EnqueueTask(() => { _routing.InvokeRoute((PacketIds)header.GetId(), client, data); });
+        
     }
 }

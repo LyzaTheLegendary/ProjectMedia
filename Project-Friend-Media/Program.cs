@@ -6,8 +6,6 @@ using Common.Network.Packets.MediaServerPackets;
 using Common.Utilities;
 using Project_Friend_Media;
 using Project_Friend_Media.Core;
-using Project_Friend_Media.Core.Users;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 internal static class Program
@@ -25,12 +23,10 @@ internal static class Program
         DbWorker.Init(int.Parse(Settings.GetValue("db.poolSize")));
         Addr host = new(Settings.GetValue("server.address"));
 
-        ConcurrentDictionary<PacketIds, Action<IClient, byte[]>> routes = new();
-        routes.TryAdd(PacketIds.LOGIN, Routes.LoginUser);
+        Routing routing = new();
+        routing.AddRoute(PacketIds.LOGIN, Routes.LoginUser);
 
-        Routing routing = new(routes);
-
-        Server server = new(host);
+        Server server = new(host,routing);
 
         process.WaitForExit();
     }

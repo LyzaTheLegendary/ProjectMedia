@@ -22,6 +22,7 @@ namespace UpdateServer.Core.Network
             pool = new(10);
             listener = new TcpListener(addr,10);
             listener.Listen(OnConnect);
+            Console.WriteLine($"Listening on address: {addr}");
         }
         public void OnConnect(Client client)
         {
@@ -64,13 +65,14 @@ namespace UpdateServer.Core.Network
                     {
                         foreach (mFile file in files) {
                             //Thread.Sleep(20);
+                            Console.WriteLine($"Sending file: {file.GetFileName()} to {client.GetAddr()}");
                             client.PendMessage((ushort)TS_SC.UPDATE_FILE, (byte[])file);
                             }
                         files.Clear();
 
-                        //Thread.Sleep(200);
-                        client.PendMessage((ushort)TS_SC.UPDATE_FINISHED, new MSG_UPDATE_FINISHED(new Addr("127.0.0.1:25566")));
-
+                        Addr host = new("127.0.0.1:25566");
+                        client.PendMessage((ushort)TS_SC.UPDATE_FINISHED, new MSG_UPDATE_FINISHED(host));
+                        Console.WriteLine($"Update finished, sending to server: {host}");
                         //GC.Collect();
                         
                         client.Disconnect();

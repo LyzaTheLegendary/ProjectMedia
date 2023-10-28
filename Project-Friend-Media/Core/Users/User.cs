@@ -6,7 +6,7 @@ namespace Common.Database.Models
 {
     public class User
     {
-        private readonly uint id;
+        private readonly uint _id;
         public string username;
         public string password;
         public string address;
@@ -28,7 +28,7 @@ namespace Common.Database.Models
         internal User(MySqlDataReader reader)
         {
             reader.Read();
-            id = reader.GetUInt32(0);
+            _id = reader.GetUInt32(0);
             username = reader.GetString(1);
             password = reader.GetString(2);
             address = reader.GetString(3);
@@ -45,7 +45,7 @@ namespace Common.Database.Models
 
         public void Save(ID id)
         {
-            string query = $"UPDATE users SET username = '{username}', password = '{password}', address = '{address}', creation_date = '{creationDate}', last_login_date = '{lastLogin}', flags = {flags}, token = '{token}', language = '{language}' WHERE id = {id}";
+            string query = $"UPDATE users SET username = '{username}', password = '{password}', address = '{address}', creation_date = '{creationDate}', last_login_date = '{lastLogin}', flags = {flags}, token = '{token}', language = '{language}' WHERE id = {_id}";
             DbWorker.PendQuery(query);
             UserManager.SaveUser(id,this);
         }

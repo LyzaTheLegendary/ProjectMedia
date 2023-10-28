@@ -33,7 +33,7 @@ public sealed class Program
         ProcessStartInfo startInfo = new ProcessStartInfo();
         startInfo.FileName = "Client.exe";
         startInfo.Arguments = serverAddr.ToString();
-        Process.Start(startInfo);
+        //Process.Start(startInfo);
 
         Environment.Exit(0);
     }
