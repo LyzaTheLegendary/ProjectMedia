@@ -1,8 +1,16 @@
-﻿using System.Runtime.InteropServices;
+﻿using Common.Utilities;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Common.Network.Packets.MediaServerPackets
 {
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct MSG_HEARTBEAT
+    {
+        [MarshalAs(UnmanagedType.I8)]
+        long binaryTime;
+        public MSG_HEARTBEAT(mTime time) => binaryTime = time.GetBinaryTime();
+    }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct MSG_LOGIN
     {
@@ -58,5 +66,8 @@ namespace Common.Network.Packets.MediaServerPackets
 
             Buffer.BlockCopy(buff, 0, _token, 0, size);
         }
+        public bool GetSuccess() => _success != 0;
+        public string GetReason() => Encoding.UTF8.GetString(_reason).TrimEnd('\0');
+        public string GetToken() => Encoding.UTF8.GetString(_token).TrimEnd('\0');
     }
 }

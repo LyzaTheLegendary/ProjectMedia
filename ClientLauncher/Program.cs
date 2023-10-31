@@ -10,7 +10,8 @@ public sealed class Program
     private static Process process = Process.GetCurrentProcess();
     private static void Main()
     {
-        updater = new Updater("127.0.0.1:25565") // will rewrite for now as it directly just dumps what it gets, not a fan of it!
+        Addr host = new("127.0.0.1:25565");
+        updater = new Updater(host) // will rewrite for now as it directly just dumps what it gets, not a fan of it!
         {
             onCompleted = OnComplete,
             onFailure = OnFailure,

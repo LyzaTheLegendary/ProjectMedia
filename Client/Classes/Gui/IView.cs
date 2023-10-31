@@ -3,8 +3,9 @@
 namespace Client.Gui
 {
     public interface IView
-    {   
-        public Widget[] GetAllWidgets();
+    {
+        public void ReceiveMessage(byte[] data);
+        public Widget GetContainer();
         public void Delete();
     }
 }

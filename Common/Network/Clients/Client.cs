@@ -15,11 +15,11 @@ namespace Common.Network.Clients
         private readonly TaskPool _pool = new(4);
         private readonly BlockingCollection<byte[]> _dataPool = new();
         private Action<Client>? _onDisconnect;
-        public Client(string address)
+        public Client(Addr host)
         {
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            _addr = new Addr(address);
-            _socket.Connect(_addr.GetIP(), _addr.GetPort());
+            _addr = host;
+            _socket.Connect(host.GetIP(), host.GetPort());
             _pool.EnqueueTask(StartQueue);
             //_tokenSource = new CancellationTokenSource();
 

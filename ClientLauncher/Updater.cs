@@ -16,8 +16,8 @@ namespace ClientLauncher
         public Action<mFile>? onNewFile;
         public Action<Addr>? onCompleted;
         public Action? onFailure;
-        public Updater(string address) {
-            Client client = new(address);
+        public Updater(Addr host) {
+            Client client = new(host);
             
             client.Receive(OnMessage);
             client.AddOnDisconnect(OnDisconnect);

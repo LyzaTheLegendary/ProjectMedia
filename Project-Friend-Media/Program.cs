@@ -1,6 +1,4 @@
 ﻿using Common.Database;
-using Common.Database.Models;
-using Common.Network;
 using Common.Network.Clients;
 using Common.Network.Packets.MediaServerPackets;
 using Common.Utilities;
@@ -24,6 +22,7 @@ internal static class Program
         Addr host = new(Settings.GetValue("server.address"));
 
         Routing routing = new();
+        routing.AddRoute(PacketIds.HEARTBEAT, Routes.OnHeartBeat);
         routing.AddRoute(PacketIds.LOGIN, Routes.LoginUser);
 
         Server server = new(host,routing);

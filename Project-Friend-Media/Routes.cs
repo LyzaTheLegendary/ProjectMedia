@@ -31,5 +31,9 @@ namespace Project_Friend_Media
                 client.PendMessage((ushort)PacketIds.LOGIN_RESULT, result);
             }
         }
+        public static void OnHeartBeat(IClient client, byte[] data)
+        {
+            //mTime time = new mTime(BitConverter.ToInt64(data));
+        }
     }
 }

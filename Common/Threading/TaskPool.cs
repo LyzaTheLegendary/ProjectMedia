@@ -15,9 +15,7 @@ namespace Common.Threading
         private void Start(int count)
         {
             for (int i = 0; i < count; i++)
-            {
                 Task.Factory.StartNew(TaskLoop, tokenSource.Token);
-            }
         }
         public void Resize(int count)
         {

@@ -52,6 +52,7 @@ namespace Common.Database
             using (MySqlCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandText = query;
+                
                 return cmd.ExecuteReader();
             }
         }

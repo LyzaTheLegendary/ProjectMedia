@@ -33,7 +33,7 @@ namespace Common.Database.Models
             password = reader.GetString(2);
             address = reader.GetString(3);
             creationDate = reader.GetDateTime(4);
-            lastLogin = reader.GetDateTime(5);
+            lastLogin = DateTime.Now;
             flags = reader.GetUInt32(6);
             token = reader.GetString(7);
             language = reader.GetString(8);
@@ -45,7 +45,7 @@ namespace Common.Database.Models
 
         public void Save(ID id)
         {
-            string query = $"UPDATE users SET username = '{username}', password = '{password}', address = '{address}', creation_date = '{creationDate}', last_login_date = '{lastLogin}', flags = {flags}, token = '{token}', language = '{language}' WHERE id = {_id}";
+            string query = $"UPDATE users SET username = '{username}', password = '{password}', address = '{address}', creation_date = '{creationDate.ToString("yyyy-MM-dd HH:mm:ss.fff")}', last_login_date = '{lastLogin.ToString("yyyy-MM-dd HH:mm:ss.fff")}', flags = {flags}, token = '{token}', language = '{language}' WHERE id = {_id}";
             DbWorker.PendQuery(query);
             UserManager.SaveUser(id,this);
         }

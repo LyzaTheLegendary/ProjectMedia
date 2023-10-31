@@ -17,33 +17,49 @@ namespace Client.Gui
             CleanWindow();
             lock (rootWindow)
             {
-                foreach (Widget widget in view.GetAllWidgets())
-                    rootWindow.Add(widget);
+                Application.Invoke(delegate
+                {
+                    rootWindow.DeleteEvent += delegate { Application.Quit(); };
+                    rootWindow.Add(view.GetContainer());
+                });
+                
             }
         }
         public void Resize(int width, int height)
         {
             lock (rootWindow)
             {
-                rootWindow.SetSizeRequest(width, height);
+                Application.Invoke(delegate
+                {
+                    rootWindow.SetSizeRequest(width, height);
+                });
             }
         }
         public void AddWidget(Widget widget)
         {
             lock (rootWindow)
-                rootWindow.Add(widget);
+                Application.Invoke(delegate
+                {
+                    rootWindow.Add(widget);
+                });
         }
         public void RemoveWidget(Widget widget)
         {
             lock (rootWindow)
-                rootWindow.Remove(widget);
+                Application.Invoke(delegate
+                {
+                    rootWindow.Remove(widget);
+                });
         }
         public void CleanWindow()
         {
             lock (rootWindow)
             {
-                foreach (Widget widget in rootWindow.Children)
-                    rootWindow.Remove(widget);
+                Application.Invoke(delegate
+                {
+                    foreach (Widget widget in rootWindow.Children)
+                        rootWindow.Remove(widget);
+                });
             }
         }
     }

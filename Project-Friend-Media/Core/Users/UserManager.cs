@@ -13,14 +13,17 @@ namespace Project_Friend_Media.Core.Users
 
         public static bool LoginUser(ID id, MSG_LOGIN loginInfo)
         {
+            
             uint userId = 0;
+            string username = loginInfo.GetUsername();
+            string password = loginInfo.GetPassword();
             using(DbConn conn = DbConn.Factory())
             {
                 MySqlDataReader reader = conn.ExecuteReader(new Query()
                     .Select("id")
                     .From("users")
-                    .Where("username", loginInfo.GetUsername())
-                    .Where("password", loginInfo.GetPassword()));
+                    .Where("username", username)
+                    .Where("password", password));
                 
                 if (reader.HasRows)
                 {
@@ -34,7 +37,7 @@ namespace Project_Friend_Media.Core.Users
             User user = User.GetUser(userId);
             // check flags for permissions or bans???
 
-            if (_users.TryAdd((int)id, user))
+            if (!_users.TryAdd((int)id, user))
                 return false;
             
             return true;
