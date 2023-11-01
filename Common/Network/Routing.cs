@@ -1,9 +1,8 @@
 ﻿using Common.Network.Clients;
 using Common.Network.Packets.MediaServerPackets;
-using Network;
 using System.Collections.Concurrent;
 
-namespace Project_Friend_Media.Core
+namespace Common.Network
 {
     public struct Routing
     {

@@ -6,5 +6,6 @@ namespace Classes
     {
         public static NetworkModule NetworkModule { get; private set; }
         public static void Init(NetworkModule netModule) => NetworkModule = netModule;
+
     }
 }
