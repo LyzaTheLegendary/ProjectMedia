@@ -1,6 +1,5 @@
 ﻿using Classes;
 using Common.Cryptography;
-using Common.Network.Packets.GuiPackets;
 using Common.Network.Packets.MediaServerPackets;
 using Common.Utilities;
 using Gtk;
@@ -19,9 +18,6 @@ namespace Client.Gui.Views
         public LoginView()
         {
             Gui.Resize(400, 300);
-
-            Application.Invoke(delegate
-            {
                 _container      = new Layout(null, null);
                 usernameInput   = new Entry();
                 passwordInput   = new Entry();
@@ -32,36 +28,36 @@ namespace Client.Gui.Views
                 _container.Put(usernameInput, 75, 0);
                 _container.Put(passwordInput, 75, 50);
                 _container.Put(submitBtn, 178, 100);
-                _container.Put(response, 200, 100);
+                _container.Put(response, 80, 85);
                 _container.ShowAll();
-            });
         }
 
         private void SendRequest(string username, string password)
         {
+            submitBtn.Sensitive = false;
             //Rfc2898DeriveBytes hash = new Rfc2898DeriveBytes(Encoding.UTF8.GetBytes(password), new byte[] {1,5,2,1,8}, iterations: 69);
             //Globals.NetworkModule.PendMessage((ushort)PacketIds.LOGIN, new MSG_LOGIN(username, Encoding.ASCII.GetString(hash.GetBytes(13)))); // todo introduce md5hash
             Globals.NetworkModule.PendMessage((ushort)PacketIds.LOGIN, new MSG_LOGIN(username, password)); // todo introduce md5hash
         }
-        
-        public void Delete()
-        {
 
+        public void HandleGuiRequest(byte[] data)
+        {
+            MSG_LOGIN_RESULT result = data.Cast<MSG_LOGIN_RESULT>();
+            Application.Invoke(delegate
+            {
+                response.Visible = true;
+                response.Text = result.GetReason();
+                if(!result.GetSuccess()) {
+                    submitBtn.Sensitive = true;
+                    return;
+                }
+
+            });
         }
 
         public Widget GetContainer()
         {
             return _container;
-        }
-
-        public void ReceiveMessage(byte[] data)
-        {
-            MSG_LOGIN_RESULT msg = data.Cast<MSG_LOGIN_RESULT>();
-
-            if (msg.GetSuccess())
-                response.Text = msg.GetReason();
-            else
-                response.Text = msg.GetReason();
         }
     }
 }

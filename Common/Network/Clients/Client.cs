@@ -2,6 +2,7 @@
 using Common.Utilities;
 using Network;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 namespace Common.Network.Clients
@@ -11,7 +12,6 @@ namespace Common.Network.Clients
         private readonly Socket _socket;
         private readonly Addr _addr;
         private readonly ID _id;
-        //private readonly CancellationTokenSource _tokenSource; // we move this to the TaskPool instead!
         private readonly TaskPool _pool = new(4);
         private readonly BlockingCollection<byte[]> _dataPool = new();
         private Action<Client>? _onDisconnect;
@@ -21,7 +21,7 @@ namespace Common.Network.Clients
             _addr = host;
             _socket.Connect(host.GetIP(), host.GetPort());
             _pool.EnqueueTask(StartQueue);
-            //_tokenSource = new CancellationTokenSource();
+
 
             byte[] intBuff = new byte[sizeof(int)];
 
@@ -84,8 +84,10 @@ namespace Common.Network.Clients
                             return;
                         }
                     }
-                    catch (Exception ex) { _onDisconnect?.Invoke(this); return; }
-
+                    catch (Exception) { _onDisconnect?.Invoke(this); return; }
+#if DEBUG
+                    Debug.Print($"Received packet id: {header.GetId()} size: {header.GetSize()} hex: {BitConverter.ToString(buff)}");
+#endif
                     _pool.EnqueueTask(() => onReceive(this, header, buff));
                 }
             });
@@ -115,7 +117,6 @@ namespace Common.Network.Clients
         public void PendMessage(byte[] buff) 
             => _dataPool.Add(buff);
         
-        // rework the id system!     
         public void PendMessage<T>(ushort id,T structure)
         {
             byte[] buff = MarshalUtil.StructToBytes(structure);
@@ -123,6 +124,9 @@ namespace Common.Network.Clients
             packet.AddRange(buff);
 
             _dataPool.Add(packet.ToArray());
+#if DEBUG
+            Debug.Print($"Send packet id: {id} packet: {structure.GetType().Name}");
+#endif
         }
 
         public void PendMessage(ushort id, byte[] buff)

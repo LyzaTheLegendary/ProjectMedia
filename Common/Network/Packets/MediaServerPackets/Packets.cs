@@ -45,7 +45,7 @@ namespace Common.Network.Packets.MediaServerPackets
         private readonly byte[] _reason = new byte[100];
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)] // Max md5 hash size
         private readonly byte[] _token = new byte[32];
-        public MSG_LOGIN_RESULT(byte success, string token, string? _reason)
+        public MSG_LOGIN_RESULT(byte success, string token, string? reason)
         {
             _success = success;
             byte[] buff = Encoding.ASCII.GetBytes(token);
@@ -58,13 +58,13 @@ namespace Common.Network.Packets.MediaServerPackets
             if (_reason == null)
                 return;
 
-            buff = Encoding.UTF8.GetBytes(_reason);
+            buff = Encoding.UTF8.GetBytes(reason);
             size = buff.Length;
 
             if (buff.Length > _reason.Length)
                 size = _reason.Length;
 
-            Buffer.BlockCopy(buff, 0, _token, 0, size);
+            Buffer.BlockCopy(buff, 0, _reason, 0, size);
         }
         public bool GetSuccess() => _success != 0;
         public string GetReason() => Encoding.UTF8.GetString(_reason).TrimEnd('\0');
