@@ -70,4 +70,48 @@ namespace Common.Network.Packets.MediaServerPackets
         public string GetReason() => Encoding.UTF8.GetString(_reason).TrimEnd('\0');
         public string GetToken() => Encoding.UTF8.GetString(_token).TrimEnd('\0');
     }
+    //[StructLayout(LayoutKind.Sequential, Pack = 1)] // TODO create some kind of result manager to match packets with results
+    //public struct MSG_RESULT
+    //{
+    //    [MarshalAs(UnmanagedType.U2)]
+    //    private readonly ushort _resultCode;
+    //    [MarshalAs(UnmanagedType.U2)]
+    //    private readonly ushort _msgId;
+    //    public MSG_RESULT(ushort MsgId,ResultCodes resultCode) 
+    //        => _resultCode = (ushort)resultCode;
+        
+    //    public ResultCodes ResultCode() => (ResultCodes)_resultCode;
+    //    public ushort GetMessageId() => _msgId;
+    //}
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct MSG_FRIEND_REQUEST
+    {
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
+        private readonly byte[] _username = new byte[50];
+        public MSG_FRIEND_REQUEST(string username)
+        {
+            byte[] buff = Encoding.ASCII.GetBytes(username);
+
+            if (buff.Length > _username.Length)
+                throw new Exception("Username is too long!");
+
+            Buffer.BlockCopy(buff, 0, _username, 0, buff.Length);
+        }
+        public string GetUsername() => Encoding.ASCII.GetString(_username).TrimEnd('\0');
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct MSG_FRIEND_REQUEST_ACCEPTED
+    {
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
+        private readonly byte[] _username = new byte[50];
+        public MSG_FRIEND_REQUEST_ACCEPTED(string username)
+        {
+            byte[] buff = Encoding.ASCII.GetBytes(username);
+
+            if (buff.Length > _username.Length)
+                throw new Exception("Username is too long!");
+
+            Buffer.BlockCopy(buff, 0, _username, 0, buff.Length);
+        }
+    }
 }

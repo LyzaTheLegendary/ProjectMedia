@@ -11,7 +11,7 @@ namespace Client.Classes.Network
         public ReceiverModule(Routing routing) => _routing = routing;
         public void OnReceive(IClient client, Header header, byte[] data)
         {
-            _routing.InvokeRoute((PacketIds)header.GetId(), client, data);
+            _routing.InvokeRoute(header.GetId(), header, client, data);
         }
     }
 }

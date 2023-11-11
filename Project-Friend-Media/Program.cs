@@ -23,8 +23,9 @@ internal static class Program
         Addr host = new(Settings.GetValue("server.address"));
 
         Routing routing = new();
-        routing.AddRoute(PacketIds.HEARTBEAT, Routes.OnHeartBeat);
-        routing.AddRoute(PacketIds.LOGIN, Routes.LoginUser);
+        routing.AddRoute((ushort)PacketIds.HEARTBEAT, Routes.OnHeartBeat);
+        routing.AddRoute((ushort)PacketIds.LOGIN, Routes.LoginUser);
+        routing.AddRoute((ushort)PacketIds.FRIEND_REQUEST, Routes.AddFriend);
 
         Server server = new(host,routing);
 

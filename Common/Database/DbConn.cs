@@ -44,6 +44,14 @@ namespace Common.Database
                 return cmd.ExecuteNonQuery();
             }
         }
+        public int ExecuteQuery(MySqlCommand cmd)
+        {
+            if (conn.State != System.Data.ConnectionState.Open)
+                conn.Open();
+
+            cmd.Connection = conn;
+            return cmd.ExecuteNonQuery();
+        }
         public MySqlDataReader ExecuteReader(string query)
         {
             if (conn.State != System.Data.ConnectionState.Open)
@@ -55,6 +63,14 @@ namespace Common.Database
                 
                 return cmd.ExecuteReader();
             }
+        }
+        public MySqlDataReader ExecuteReader(MySqlCommand cmd)
+        {
+            if (conn.State != System.Data.ConnectionState.Open)
+                conn.Open();
+
+            cmd.Connection = conn;
+            return cmd.ExecuteReader();
         }
         public void Dispose()
         {

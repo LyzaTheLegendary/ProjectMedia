@@ -1,4 +1,5 @@
 ﻿using Common.Network.Clients;
+using Common.Network.Packets;
 using Common.Network.Packets.MediaServerPackets;
 using Common.Threading;
 using Common.Utilities;
@@ -34,7 +35,8 @@ namespace Client.Network
             throw new NotImplementedException();
         }
         public void OnReceive(Action<IClient, Header, byte[]> onReceive) => ((TcpClient)_client).Receive(onReceive);
-        public void PendMessage<T>(ushort id, T packet) => _client.PendMessage(id, packet);
+        public void PendMessage<T>(ushort id, T packet) where T : struct => _client.PendMessage(id, packet);
+        public void PendMessage<T>(ushort id, T packet, Action<ResultCodes> action) where T : struct => _client.PendMessage(id, packet,action);
         public ConnState GetState() => _state;
     }
 }

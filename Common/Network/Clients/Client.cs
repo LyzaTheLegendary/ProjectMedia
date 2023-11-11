@@ -1,4 +1,6 @@
-﻿using Common.Threading;
+﻿using Common.Network.Packets;
+using Common.Network.Packets.MediaServerPackets;
+using Common.Threading;
 using Common.Utilities;
 using Network;
 using System.Collections.Concurrent;
@@ -14,6 +16,7 @@ namespace Common.Network.Clients
         private readonly ID _id;
         private readonly TaskPool _pool = new(4);
         private readonly BlockingCollection<byte[]> _dataPool = new();
+        private readonly ResultManager resultManager = new();
         private Action<Client>? _onDisconnect;
         public Client(Addr host)
         {
@@ -71,12 +74,13 @@ namespace Common.Network.Clients
                     }
                     catch (Exception) { _onDisconnect?.Invoke(this); return; }
 
-                    Header header = buff.Cast<Header>(); // sometimes packet doesn't arrive completely?
+                    Header header = buff.Cast<Header>();
+                    Action<ResultCodes>? result = resultManager.TryGetAction(header.GetResultId());
+
                     buff = new byte[header.GetSize()];
 
                     try
                     {
-
                         int receivedBytes2 = _socket.Receive(buff);
                         if (receivedBytes2 == 0)
                         {
@@ -88,7 +92,10 @@ namespace Common.Network.Clients
 #if DEBUG
                     Debug.Print($"Received packet id: {header.GetId()} size: {header.GetSize()} hex: {BitConverter.ToString(buff)}");
 #endif
-                    _pool.EnqueueTask(() => onReceive(this, header, buff));
+                    if( result != null )
+                        _pool.EnqueueTask(() => result.Invoke((ResultCodes)MarshalUtil.BytesToStruct<ushort>(buff)));
+                    else
+                        _pool.EnqueueTask(() => onReceive(this, header, buff));
                 }
             });
         }
@@ -117,7 +124,7 @@ namespace Common.Network.Clients
         public void PendMessage(byte[] buff) 
             => _dataPool.Add(buff);
         
-        public void PendMessage<T>(ushort id,T structure)
+        public void PendMessage<T>(ushort id,T structure) where T : struct
         {
             byte[] buff = MarshalUtil.StructToBytes(structure);
             List<byte> packet = new(MarshalUtil.StructToBytes(new Header(id, buff.Length)));
@@ -125,7 +132,20 @@ namespace Common.Network.Clients
 
             _dataPool.Add(packet.ToArray());
 #if DEBUG
-            Debug.Print($"Send packet id: {id} packet: {structure.GetType().Name}");
+            Debug.Print($"Send packet id: {id} packet: {structure!.GetType().Name}");
+#endif
+        }
+        public void PendMessage<T>(ushort id, T structure, Action<ResultCodes> action) where T : struct
+        {
+
+            byte[] buff = MarshalUtil.StructToBytes(structure);
+            ID resultId = resultManager.AddAction(action);
+            List<byte> packet = new(MarshalUtil.StructToBytes(new Header(id, buff.Length, resultId.GetNumber())));
+            packet.AddRange(buff);
+
+            _dataPool.Add(packet.ToArray());
+#if DEBUG
+            Debug.Print($"Send packet id: {id} packet: {structure!.GetType().Name}");
 #endif
         }
 
@@ -139,5 +159,9 @@ namespace Common.Network.Clients
 
             _dataPool.Add(packet.ToArray());
         }
+
+        public void PendResult(int resultCode, ResultCodes result)
+            => _dataPool.Add(MarshalUtil.StructToBytes(new Header((ushort)PacketIds.RESULT, sizeof(ushort), resultCode)).Concat<byte>(MarshalUtil.StructToBytes((ushort)result)).ToArray());
+        
     }
 }

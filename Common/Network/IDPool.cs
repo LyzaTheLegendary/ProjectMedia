@@ -38,6 +38,10 @@ namespace Common.Network
             if(_returnNumber == null) return;
             _returnNumber(Id);
         }
+        public override int GetHashCode()
+        {
+            return Id;
+        }
         public static implicit operator int(ID id)
         {
             return id.GetNumber();

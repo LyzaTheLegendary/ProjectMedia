@@ -1,4 +1,5 @@
-﻿using Gtk;
+﻿using Common.FileSystem.Storage;
+using Gtk;
 
 namespace Client.Gui
 {
@@ -8,6 +9,9 @@ namespace Client.Gui
         public RootWindow(string rootWindowTitle)
         {
             rootWindow = new Window(rootWindowTitle);
+            CssProvider provider = new();
+            provider.LoadFromData(Storage.GetFile("MainStyle.css").GetText());
+            StyleContext.AddProviderForScreen(Gdk.Screen.Default, provider, 800);
             rootWindow.ShowAll();
         }
         ~RootWindow() 
@@ -21,6 +25,7 @@ namespace Client.Gui
                 {
                     rootWindow.DeleteEvent += delegate { Application.Quit(); };
                     rootWindow.Add(view.GetContainer());
+                    view.GetContainer().ShowAll();
                 });
                 
             }

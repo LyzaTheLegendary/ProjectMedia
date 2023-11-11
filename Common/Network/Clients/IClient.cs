@@ -1,4 +1,5 @@
-﻿using Common.Network.Packets.UpdateServerPackets;
+﻿using Common.Network.Packets;
+using Common.Network.Packets.UpdateServerPackets;
 using Network;
 
 namespace Common.Network.Clients
@@ -6,8 +7,10 @@ namespace Common.Network.Clients
     public interface IClient
     {
         void PendMessage(byte[] buff);
-        void PendMessage<T>(ushort id, T structure);
+        void PendMessage<T>(ushort id, T structure) where T : struct;
+        void PendMessage<T>(ushort id, T structure, Action<ResultCodes> action) where T : struct;
         void PendMessage(ushort id, byte[] buff);
+        void PendResult(int resultCode,ResultCodes result);
         void Disconnect();
         bool Connected();
         Stream GetStream();

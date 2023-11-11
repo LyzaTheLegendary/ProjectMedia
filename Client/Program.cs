@@ -17,13 +17,18 @@ public static class Program
         Addr host = new(args[0]);
 
         Routing routing = new();
-        routing.AddRoute(Common.Network.Packets.MediaServerPackets.PacketIds.LOGIN_RESULT, Routes.LoginResult);
+        routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.FRIEND_INFO, Routes.FriendInfo);
+        routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.LOGIN_RESULT, Routes.LoginResult);
+        routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.FRIEND_REQUEST, Routes.FriendRequest);
+        routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.FRIEND_REQUEST_RESULT, Routes.OnFriendRequestResult);
 
         Globals.NetworkInit(new Client.Network.NetworkModule(host));
         Globals.ReceiverInit(routing);
 
         Application.Init();
-        Gui.Construct("unnamed");
+        Gui.Construct("Exodium");
+        //TODO: Check if token exists and if we can login first?
+        
         Gui.SetView(new LoginView());
         logicThread.Start();
         Application.Run();
