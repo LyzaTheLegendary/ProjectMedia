@@ -10,6 +10,7 @@ using Common.Network.Packets;
 using MySqlConnector;
 using Project_Friend_Media.Core.Users.Friends;
 using Network;
+using System.Text;
 
 namespace Project_Friend_Media
 {
@@ -17,41 +18,33 @@ namespace Project_Friend_Media
     {
         public static void LoginUser(Header header, IClient client, byte[] data)
         {
-            MSG_LOGIN_RESULT result;
             if (UserManager.LoginUser(client.GetId(), data.Cast<MSG_LOGIN>()))
             {
                 ID id = client.GetId();
                 User user = UserManager.GetUser(id)!;
-                string token = Md5Hash.CreateMD5String($"{id} + {user.username}");
 
-                result = new MSG_LOGIN_RESULT(1, token, StringResource.GetString(user.language, 1));
-                user.token = token;
+                user.token = Md5Hash.CreateMD5String($"{id} + {user.username}"); ;
                 user.Save(id);
+
+                client.PendMessage((ushort)PacketIds.TOKEN,Encoding.ASCII.GetBytes(user.token));
                 client.PendResult(header.GetResultId(), ResultCodes.Success);
-                //client.PendMessage(ResultCodes.Success)
-                //client.PendMessage((ushort)PacketIds.LOGIN_RESULT, result);
             }
             else
-            {
                 client.PendResult(header.GetResultId(), ResultCodes.NotFound);
-                //result = new MSG_LOGIN_RESULT(0, "", StringResource.GetString("EN", 2));
-                //client.PendMessage((ushort)PacketIds.LOGIN_RESULT, result);
-            }
+
         }
         public static void AddFriend(Header header, IClient client, byte[] data)
         {
             User? user = UserManager.GetUser(client.GetId());
             if (user == null)
             {
-                client.PendMessage((ushort)PacketIds.FRIEND_REQUEST_RESULT, (ushort)ResultCodes.Denied);
+                client.PendResult(header.GetResultId(), ResultCodes.Denied);
                 return;
             }
 
-            FriendManager.FriendRequest(client, user, data.Cast<MSG_FRIEND_REQUEST>().GetUsername());
+            ResultCodes result = FriendManager.FriendRequest(client, user, data.ToAsciiStr());
 
-            
-            
-
+            client.PendResult(client.GetId(), result);
         }
         public static void OnHeartBeat(Header header, IClient client, byte[] data)
         {

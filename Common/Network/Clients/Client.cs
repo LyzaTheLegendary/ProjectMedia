@@ -3,6 +3,7 @@ using Common.Network.Packets.MediaServerPackets;
 using Common.Threading;
 using Common.Utilities;
 using Network;
+using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Sockets;
@@ -155,6 +156,15 @@ namespace Common.Network.Clients
             List<byte> packet = new(buff.Length + Marshal.SizeOf<Header>());
 
             packet.AddRange(header);
+            packet.AddRange(buff);
+
+            _dataPool.Add(packet.ToArray());
+        }
+
+        public void PendMessage(ushort id, byte[] buff, Action<ResultCodes> action)
+        {
+            ID resultId = resultManager.AddAction(action);
+            List<byte> packet = new(MarshalUtil.StructToBytes(new Header(id, buff.Length, resultId.GetNumber())));
             packet.AddRange(buff);
 
             _dataPool.Add(packet.ToArray());

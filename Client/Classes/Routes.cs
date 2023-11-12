@@ -1,4 +1,5 @@
-﻿using Common.Network.Clients;
+﻿using Common.FileSystem.Storage;
+using Common.Network.Clients;
 using Common.Network.Packets;
 using Common.Network.Packets.MediaServerPackets;
 using Common.Utilities;
@@ -12,7 +13,9 @@ namespace Client.Classes
         {
             FriendList.AddFriend(new Friend(data.Cast<MSG_FRIEND_REQUEST>().GetUsername()));
         }
-        public static void LoginResult(Header header, IClient client, byte[] data) => Gui.Gui.RequestGuiAction(data);
+        public static void SaveToken(Header header, IClient client, byte[] data) 
+            => Storage.SaveFile(new Common.FileSystem.mFile("token.t", data));
+        
         public static void FriendRequest(Header header, IClient client, byte[] data)
         {
             Console.WriteLine($"{data.Cast<MSG_FRIEND_REQUEST>().GetUsername()} has sent a friend request!");

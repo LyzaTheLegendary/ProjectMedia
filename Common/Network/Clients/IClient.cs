@@ -10,6 +10,7 @@ namespace Common.Network.Clients
         void PendMessage<T>(ushort id, T structure) where T : struct;
         void PendMessage<T>(ushort id, T structure, Action<ResultCodes> action) where T : struct;
         void PendMessage(ushort id, byte[] buff);
+        void PendMessage(ushort id, byte[] buff, Action<ResultCodes> action);
         void PendResult(int resultCode,ResultCodes result);
         void Disconnect();
         bool Connected();

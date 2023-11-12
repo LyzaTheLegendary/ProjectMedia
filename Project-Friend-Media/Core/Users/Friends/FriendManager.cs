@@ -9,8 +9,11 @@ namespace Project_Friend_Media.Core.Users.Friends
 {
     public static class FriendManager
     {
-        public static void FriendRequest(IClient client, User user, string tUsername)
+        public static ResultCodes FriendRequest(IClient client, User user, string tUsername)
         {
+            if (user.username == tUsername)
+                return ResultCodes.Denied;
+
             IClient? tClient = UserManager.GetClientViaUsername(tUsername);
             User? tUser;
 
@@ -21,8 +24,8 @@ namespace Project_Friend_Media.Core.Users.Friends
 
             if(tUser == null)
             {
-                client.PendMessage((ushort)PacketIds.FRIEND_REQUEST_RESULT, (ushort)ResultCodes.NotFound);
-                return;
+                //client.PendMessage((ushort)PacketIds.FRIEND_REQUEST_RESULT, (ushort)ResultCodes.NotFound);
+                return ResultCodes.NotFound;
             }
 
             using (DbConn conn = DbConn.Factory())
@@ -39,13 +42,14 @@ namespace Project_Friend_Media.Core.Users.Friends
                     conn.ExecuteQuery(cmd);
                 }
                 catch(Exception){
-                    client.PendMessage((ushort)PacketIds.FRIEND_REQUEST_RESULT, (ushort)ResultCodes.AlreadyExist);
-                    return;
+                    //client.PendMessage((ushort)PacketIds.FRIEND_REQUEST_RESULT, (ushort)ResultCodes.AlreadyExist);
+                    return ResultCodes.AlreadyExist;
                 }
             }
 
             tClient?.PendMessage((ushort)PacketIds.FRIEND_REQUEST, new MSG_FRIEND_REQUEST(user.username));
-            client.PendMessage((ushort)PacketIds.FRIEND_REQUEST_RESULT, new MSG_FRIEND_REQUEST(user.username));
+            return ResultCodes.Success;
+            //client.PendMessage((ushort)PacketIds.FRIEND_REQUEST_RESULT, new MSG_FRIEND_REQUEST(user.username));
         }
     }
 }

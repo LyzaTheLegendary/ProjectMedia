@@ -37,6 +37,7 @@ namespace Client.Network
         public void OnReceive(Action<IClient, Header, byte[]> onReceive) => ((TcpClient)_client).Receive(onReceive);
         public void PendMessage<T>(ushort id, T packet) where T : struct => _client.PendMessage(id, packet);
         public void PendMessage<T>(ushort id, T packet, Action<ResultCodes> action) where T : struct => _client.PendMessage(id, packet,action);
+        public void PendMessage(ushort id, byte[] packet, Action<ResultCodes> action) => _client.PendMessage(id, packet,action);
         public ConnState GetState() => _state;
     }
 }

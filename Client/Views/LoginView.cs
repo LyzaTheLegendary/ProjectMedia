@@ -1,14 +1,8 @@
 ﻿using Classes;
 using Client.Views;
-using Common.Cryptography;
-using Common.FileSystem;
-using Common.FileSystem.Storage;
 using Common.Network.Packets;
 using Common.Network.Packets.MediaServerPackets;
-using Common.Utilities;
 using Gtk;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Client.Gui.Views
 {
@@ -53,7 +47,7 @@ namespace Client.Gui.Views
             //Globals.NetworkModule.PendMessage((ushort)PacketIds.LOGIN, new MSG_LOGIN(username, Encoding.ASCII.GetString(hash.GetBytes(13)))); // todo introduce md5hash
             Globals.NetworkModule.PendMessage((ushort)PacketIds.LOGIN, new MSG_LOGIN(username, password), (code) =>
             {
-                Application.Invoke(delegate
+                Application.Invoke(delegate // Since the gui thread probably doesn't have anything to do we handle it there!
                 {
                     switch (code)
                     {
@@ -73,23 +67,6 @@ namespace Client.Gui.Views
 
         public void HandleGuiRequest(byte[] data)
         {
-            //MSG_LOGIN_RESULT result = data.Cast<MSG_LOGIN_RESULT>();
-            //Application.Invoke(delegate
-            //{
-            //    response.Visible = true;
-            //    response.Text = result.GetReason();
-            //    if(!result.GetSuccess()) {
-            //        submitBtn.Sensitive = true;
-            //        usernameInput.Sensitive = true;
-            //        passwordInput.Sensitive = true;
-            //        return;
-            //    }
-                
-            //    mFile file = new("token.t", Encoding.ASCII.GetBytes(result.GetToken()));
-            //    Storage.SaveFile(file);
-                
-                
-            //});
         }
 
         public Widget GetContainer()

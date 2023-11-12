@@ -18,7 +18,7 @@ public static class Program
 
         Routing routing = new();
         routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.FRIEND_INFO, Routes.FriendInfo);
-        routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.LOGIN_RESULT, Routes.LoginResult);
+        routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.TOKEN, Routes.SaveToken);
         routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.FRIEND_REQUEST, Routes.FriendRequest);
         routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.FRIEND_REQUEST_RESULT, Routes.OnFriendRequestResult);
 

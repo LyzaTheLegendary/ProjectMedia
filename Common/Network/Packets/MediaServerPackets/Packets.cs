@@ -37,53 +37,6 @@ namespace Common.Network.Packets.MediaServerPackets
         public string GetPassword() => Encoding.ASCII.GetString(_password).TrimEnd('\0');
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct MSG_LOGIN_RESULT
-    {
-        [MarshalAs(UnmanagedType.U1)]
-        private readonly byte _success;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 100)]
-        private readonly byte[] _reason = new byte[100];
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)] // Max md5 hash size
-        private readonly byte[] _token = new byte[32];
-        public MSG_LOGIN_RESULT(byte success, string token, string? reason)
-        {
-            _success = success;
-            byte[] buff = Encoding.ASCII.GetBytes(token);
-
-            int size = buff.Length;
-            if(buff.Length > _token.Length)
-                size = _token.Length;
-
-            Buffer.BlockCopy(buff,0, _token, 0, size);
-            if (_reason == null)
-                return;
-
-            buff = Encoding.UTF8.GetBytes(reason);
-            size = buff.Length;
-
-            if (buff.Length > _reason.Length)
-                size = _reason.Length;
-
-            Buffer.BlockCopy(buff, 0, _reason, 0, size);
-        }
-        public bool GetSuccess() => _success != 0;
-        public string GetReason() => Encoding.UTF8.GetString(_reason).TrimEnd('\0');
-        public string GetToken() => Encoding.UTF8.GetString(_token).TrimEnd('\0');
-    }
-    //[StructLayout(LayoutKind.Sequential, Pack = 1)] // TODO create some kind of result manager to match packets with results
-    //public struct MSG_RESULT
-    //{
-    //    [MarshalAs(UnmanagedType.U2)]
-    //    private readonly ushort _resultCode;
-    //    [MarshalAs(UnmanagedType.U2)]
-    //    private readonly ushort _msgId;
-    //    public MSG_RESULT(ushort MsgId,ResultCodes resultCode) 
-    //        => _resultCode = (ushort)resultCode;
-        
-    //    public ResultCodes ResultCode() => (ResultCodes)_resultCode;
-    //    public ushort GetMessageId() => _msgId;
-    //}
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct MSG_FRIEND_REQUEST
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
