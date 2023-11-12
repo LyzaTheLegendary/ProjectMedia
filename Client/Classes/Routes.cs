@@ -20,13 +20,5 @@ namespace Client.Classes
         {
             Console.WriteLine($"{data.Cast<MSG_FRIEND_REQUEST>().GetUsername()} has sent a friend request!");
         }
-        public static void OnFriendRequestResult(Header header, IClient client, byte[] data) {
-            if(data.Length > sizeof(ushort)) {
-                FriendList.AddFriend(new Friend(data.Cast<MSG_FRIEND_REQUEST>().GetUsername()));
-                return;
-            }
-            
-            ResultCodes resultCode = (ResultCodes)data.Cast<ushort>();
-        }
     }
 }

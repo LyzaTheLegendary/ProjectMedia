@@ -43,6 +43,7 @@ namespace Client.Views
         {
             if (tUsername.Length > 50)
                 return; // TODO create error message field for friend requests
+
             Globals.NetworkModule.PendMessage((ushort)PacketIds.FRIEND_REQUEST, tUsername.ToAsciiBytes(), (code) =>
             {
                 switch (code)

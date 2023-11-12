@@ -20,7 +20,6 @@ public static class Program
         routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.FRIEND_INFO, Routes.FriendInfo);
         routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.TOKEN, Routes.SaveToken);
         routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.FRIEND_REQUEST, Routes.FriendRequest);
-        routing.AddRoute((ushort)Common.Network.Packets.MediaServerPackets.PacketIds.FRIEND_REQUEST_RESULT, Routes.OnFriendRequestResult);
 
         Globals.NetworkInit(new Client.Network.NetworkModule(host));
         Globals.ReceiverInit(routing);

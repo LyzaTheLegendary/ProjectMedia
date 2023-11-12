@@ -7,7 +7,6 @@
         LOGIN,
         TOKEN,
         FRIEND_REQUEST,
-        FRIEND_REQUEST_RESULT,
         FRIEND_INFO,
         FRIEND_REQUEST_ACCEPT,
     }
